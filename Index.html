@@ -1,0 +1,342 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RemasterShadhi - AI Multi-Language Lyric Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary-orange': '#FF8A00', /* Slightly brighter orange for contrast */
+                        'primary-dark-bg': '#0F0F0F', /* Dark black background */
+                        'card-bg': '#1A1A1A', /* Slightly lighter dark for cards */
+                        'text-light': '#E0E0E0', /* Light grey for general text */
+                        'input-bg': '#2C2C2C', /* Darker input background */
+                        'input-border': '#4A4A4A', /* Input border color */
+                        'accent-blue': '#00BFFF', /* A vibrant blue accent */
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Custom scrollbar for better aesthetics */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px; /* Slightly wider for dark theme */
+        }
+
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background-color: #FF8A00; /* Orange scrollbar */
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background-color: #2C2C2C; /* Dark track */
+        }
+    </style>
+</head>
+<body class="bg-primary-dark-bg font-sans min-h-screen p-4 sm:p-6 flex justify-center custom-scroll">
+
+
+    <div id="app" class="w-full max-w-lg bg-card-bg rounded-xl shadow-2xl p-6 sm:p-8 space-y-6 border border-input-border">
+        
+        <!-- Header: Updated with the new uploaded logo and new colors/fonts --><header class="text-center space-y-1">
+            <div class="flex flex-col items-center justify-center">
+                <img src="uploaded:1000492598.jpg-aa4a6026-584d-4369-881f-32986c5e9cfa" 
+                     alt="RemasterShadhi Logo" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/112x112/FF8A00/0F0F0F?text=RS';"
+                     class="w-28 h-28 object-contain mb-1 rounded-full shadow-lg border border-primary-orange">
+                
+                <h1 class="text-4xl font-extrabold tracking-wide leading-none">
+                    <span class="text-white block">REMASTER</span>
+                    <span class="text-primary-orange text-3xl block italic">Shadhi</span>
+                </h1>
+            </div>
+            <p class="text-sm text-text-light pt-1">AI Lyric Generator | Powered by Gemini-2.5-Flash</p>
+        </header>
+
+
+        <!-- Input Area --><section class="space-y-4">
+            
+            <!-- Theme Input --><div>
+                <label for="themeInput" class="block text-sm font-medium text-text-light mb-2">Enter a theme, emotion, or story:</label>
+                <textarea id="themeInput" rows="3" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500"></textarea>
+            </div>
+
+
+            <!-- Language Selector --><div>
+                <label for="languageSelect" class="block text-sm font-medium text-text-light mb-2">Target Language:</label>
+                <select id="languageSelect" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner appearance-none bg-input-bg text-text-light">
+                    <option value="English">English</option>
+                    <option value="Hindi">Hindi</option>
+                    <option value="Tamil">Tamil (தமிழ்)</option>
+                    <option value="Malayalam">Malayalam (മലയാളം)</option>
+                </select>
+            </div>
+
+
+            <!-- Advanced Options Toggle --><div class="pt-2">
+                <button id="advancedToggle" class="w-full flex justify-between items-center p-3 bg-input-bg rounded-lg text-primary-orange font-semibold hover:bg-gray-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-primary-orange border border-input-border">
+                    <span>Advanced Options (Optional)</span>
+                    <svg id="toggleIcon" class="w-5 h-5 transform rotate-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+            </div>
+
+
+            <!-- Advanced Options Content --><div id="advancedOptions" class="space-y-4 border border-input-border rounded-lg p-4 transition-all duration-300 hidden bg-card-bg">
+                
+                <!-- Genre --><div class="option-group">
+                    <label for="genreSelect" class="block text-sm font-medium text-text-light mb-2">Genre:</label>
+                    <select id="genreSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
+                        <option value="">None (Default)</option>
+                        <option value="Pop">Pop (Fast-paced, catchy)</option>
+                        <option value="Rock">Rock (Heavy guitar, driving rhythm)</option>
+                        <option value="Hip-Hop">Hip-Hop (Rhythmic spoken word, strong beat)</option>
+                        <option value="Folk">Folk (Acoustic, story-driven)</option>
+                        <option value="Electronic">Electronic (Synthetic sounds, danceable)</option>
+                        <option value="Regional/Filmi">Regional/Filmi (Bollywood/South Indian Cinema Style)</option>
+                    </select>
+                </div>
+
+
+                <!-- Mood / Tone --><div class="option-group">
+                    <label for="moodSelect" class="block text-sm font-medium text-text-light mb-2">Mood / Tone:</label>
+                    <select id="moodSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
+                        <option value="">None (Default)</option>
+                        <option value="Happy/Uplifting">Happy / Uplifting</option>
+                        <option value="Sad/Melancholy">Sad / Melancholy</option>
+                        <option value="Romantic/Passionate">Romantic / Passionate</option>
+                        <option value="Nostalgic/Reflective">Nostalgic / Reflective</option>
+                        <option value="Energetic/Upbeat">Energetic / Upbeat</option>
+                        <option value="Calm/Soothing">Calm / Soothing</option>
+                    </select>
+                </div>
+                
+                <!-- Target Audience --><div class="option-group">
+                    <label for="audienceSelect" class="block text-sm font-medium text-text-light mb-2">Target Audience:</label>
+                    <select id="audienceSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
+                        <option value="">None (Default)</option>
+                        <option value="Teenagers (13-18)">Teenagers (Focus on modern topics, simple language)</option>
+                        <option value="Young Adults (18-35)">Young Adults (Focus on careers, complex relationships)</option>
+                        <option value="General Public/Family">General Public / Family (Broad appeal, clean language)</option>
+                        <option value="Devotional/Spiritual">Devotional / Spiritual (Focus on faith/worship)</option>
+                    </select>
+                </div>
+                
+                <!-- Rhyme Scheme / Style --><div class="option-group">
+                    <label for="rhymeSelect" class="block text-sm font-medium text-text-light mb-2">Rhyme Scheme / Style:</label>
+                    <select id="rhymeSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
+                        <option value="">None (Default)</option>
+                        <option value="AABB (Couplet)">AABB (Couplets - simple and strong)</option>
+                        <option value="ABAB (Alternating)">ABAB (Alternating - classic feel)</option>
+                        <option value="Free Verse">Free Verse (Focus on flow and meaning, no strict rhyme)</option>
+                        <option value="Slant Rhyme">Slant Rhyme (Near/imperfect rhymes - sophisticated feel)</option>
+                    </select>
+                </div>
+
+
+                <!-- Artist Style --><div class="option-group">
+                    <label for="artistStyle" class="block text-sm font-medium text-text-light mb-2">Artist Style (Optional):</label>
+                    <input type="text" id="artistStyle" placeholder="E.g., Taylor Swift, AR Rahman, Drake, Arijit Singh..." class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500">
+                </div>
+
+
+                <!-- Additional Notes --><div class="option-group">
+                    <label for="additionalNotes" class="block text-sm font-medium text-text-light mb-2">Additional Notes (Optional):</label>
+                    <textarea id="additionalNotes" rows="2" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500" placeholder="E.g., Specify length, desired chorus, use metaphors about water, maintain a 4-line stanza structure..."></textarea>
+                </div>
+            </div>
+            
+            <!-- Generate Button --><button id="generateButton" onclick="generateLyrics()" class="w-full py-3 bg-primary-orange text-white font-bold rounded-lg shadow-lg hover:bg-orange-600 transition duration-150 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-primary-orange flex items-center justify-center">
+                <svg id="generateIcon" class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                Generate Lyrics
+            </button>
+            <div id="loadingIndicator" class="text-center text-primary-orange font-semibold py-2 hidden">
+                <svg class="animate-spin h-5 w-5 mr-3 inline-block" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating masterpiece...
+            </div>
+        </section>
+
+
+        <!-- Results Area --><section class="space-y-4">
+            <h2 class="text-xl font-bold text-white">Generated Lyrics:</h2>
+            <div id="lyricsOutput" class="min-h-[100px] p-4 bg-input-bg border border-input-border rounded-lg text-text-light whitespace-pre-wrap shadow-inner custom-scroll overflow-y-auto">
+                Your generated song lyrics will appear here.
+            </div>
+            
+            <!-- Error/Message Box --><div id="messageBox" class="hidden p-3 text-sm rounded-lg" role="alert"></div>
+        </section>
+        
+    </div>
+
+
+    <script type="module">
+        // Global utility function for displaying messages
+        const displayMessage = (message, type = 'error') => {
+            const box = document.getElementById('messageBox');
+            box.textContent = message;
+            box.className = 'p-3 text-sm rounded-lg'; // Reset classes
+            box.classList.remove('hidden');
+
+
+            if (type === 'error') {
+                box.classList.add('bg-red-800/30', 'text-red-300', 'border', 'border-red-600');
+            } else if (type === 'info') {
+                box.classList.add('bg-blue-800/30', 'text-blue-300', 'border', 'border-blue-600');
+            }
+        };
+
+
+        // Advanced Options Toggle Logic
+        document.getElementById('advancedToggle').addEventListener('click', () => {
+            const optionsDiv = document.getElementById('advancedOptions');
+            const icon = document.getElementById('toggleIcon');
+            const isHidden = optionsDiv.classList.contains('hidden');
+
+
+            if (isHidden) {
+                optionsDiv.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                optionsDiv.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        });
+
+
+        window.generateLyrics = async () => {
+            const themeInput = document.getElementById('themeInput').value.trim();
+            const languageSelect = document.getElementById('languageSelect').value;
+            const genreSelect = document.getElementById('genreSelect').value;
+            const moodSelect = document.getElementById('moodSelect').value;
+            const audienceSelect = document.getElementById('audienceSelect').value;
+            const rhymeSelect = document.getElementById('rhymeSelect').value;
+            const artistStyle = document.getElementById('artistStyle').value.trim();
+            const additionalNotes = document.getElementById('additionalNotes').value.trim();
+            
+            const lyricsOutput = document.getElementById('lyricsOutput');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const messageBox = document.getElementById('messageBox');
+            
+            messageBox.classList.add('hidden');
+            
+            if (!themeInput) {
+                displayMessage('Please enter a theme, emotion, or story to start!', 'error');
+                return;
+            }
+
+
+            lyricsOutput.textContent = 'Generating...';
+            loadingIndicator.classList.remove('hidden');
+            document.getElementById('generateButton').disabled = true;
+
+
+            // --- Constructing the Comprehensive Prompt ---
+            let prompt = `Generate original song lyrics in ${languageSelect}. The central theme, emotion, or story is: "${themeInput}".`;
+
+
+            const styleInstructions = [];
+            if (genreSelect) styleInstructions.push(`Genre: ${genreSelect}`);
+            if (moodSelect) styleInstructions.push(`Mood/Tone: ${moodSelect}`);
+            if (audienceSelect) styleInstructions.push(`Target Audience: ${audienceSelect}`);
+            
+            // Note: Rhyme scheme selected in the UI is treated as a preference/style guide for the overall song,
+            // but the new requirement is for the AI to vary it across sections.
+            if (rhymeSelect) styleInstructions.push(`Overall preferred Rhyme Scheme/Style: ${rhymeSelect} (Use this as a basis, but vary the scheme per section for better musicality).`);
+            
+            if (artistStyle) styleInstructions.push(`In the style of: ${artistStyle}`);
+            if (additionalNotes) styleInstructions.push(`Additional Instructions: ${additionalNotes}`);
+
+
+            if (styleInstructions.length > 0) {
+                prompt += "\n\nMusical and Lyrical Style Requirements:\n- " + styleInstructions.join('\n- ');
+            }
+
+
+            // --- Updated Formatting Requirements ---
+            prompt += "\n\nFormatting Requirements:\n- The output MUST contain the following sections: INTRO, VERSE 1, CHORUS, VERSE 2, BRIDGE, and OUTRO.\n- Use different, suitable rhyme schemes or lyrical styles for each of these sections (e.g., AABB for Chorus, ABAB for Verses, Free Verse for Intro/Outro).\n- Label each section clearly (e.g., INTRO, CHORUS, etc.).\n- The lyrics must be provided in a single block of text. Do not include any introductory or concluding commentary, only the lyrics.";
+
+
+
+
+            const apiKey = ""; // API Key will be automatically handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: {
+                    parts: [{ text: "You are a world-class songwriter and lyricist capable of writing in multiple languages and adapting to any genre or style requested. You must follow all style and language instructions precisely." }]
+                },
+            };
+
+
+            const maxRetries = 3;
+            let currentRetry = 0;
+            let success = false;
+            
+            while (currentRetry < maxRetries && !success) {
+                try {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+
+                    const result = await response.json();
+                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+
+                    if (text) {
+                        lyricsOutput.textContent = text;
+                        success = true;
+                    } else {
+                        throw new Error("API response was missing generated content.");
+                    }
+                } catch (error) {
+                    console.error(`Attempt ${currentRetry + 1} failed:`, error);
+                    currentRetry++;
+                    if (currentRetry < maxRetries) {
+                        // Exponential backoff
+                        const delay = Math.pow(2, currentRetry) * 1000;
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        displayMessage(`Failed to generate lyrics after ${maxRetries} attempts. Please check your prompt or try again later.`, 'error');
+                        lyricsOutput.textContent = 'Error during generation.';
+                    }
+                }
+            }
+            
+            loadingIndicator.classList.add('hidden');
+            document.getElementById('generateButton').disabled = false;
+        };
+
+
+        // Set initial placeholder text for the output area
+        document.addEventListener('DOMContentLoaded', () => {
+             document.getElementById('lyricsOutput').textContent = "Your generated song lyrics will appear here. Start by entering a theme and hitting 'Generate'.";
+        });
+    </script>
+</body>
+</html>
