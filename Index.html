@@ -3,338 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RemasterShadhi - AI Multi-Language Lyric Generator</title>
+    <title>RemasterShadhi: AI Lyric Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Set log level to debug for full Firebase logging
+        setLogLevel('debug');
+        
+        const initializeFirebase = async () => {
+            // Global variables are automatically provided by the environment
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            let firebaseConfig = {};
+            try {
+                firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            } catch (e) {
+                console.error("Error parsing __firebase_config:", e);
+                return;
+            }
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+
+            if (Object.keys(firebaseConfig).length === 0) {
+                console.error("Firebase configuration is missing or invalid.");
+                return;
+            }
+
+
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Firebase signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Firebase signed in anonymously.");
+                }
+            } catch (error) {
+                console.error("Firebase initialization or sign-in failed:", error);
+            }
+        };
+
+
+        initializeFirebase();
+    </script>
+    <style>
+        /* Define custom scrollbar for the dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0F0F0F; /* primary-dark-bg */
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #FF8A00; /* primary-orange */
+            border-radius: 4px;
+        }
+
+
+        /* Custom styling for select to hide native arrow and add custom orange one */
+        .custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%23FF8A00" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem; /* Make room for the custom arrow */
+        }
+    </style>
+    <!-- Tailwind Custom Configuration -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'primary-orange': '#FF8A00', /* Slightly brighter orange for contrast */
-                        'primary-dark-bg': '#0F0F0F', /* Dark black background */
-                        'card-bg': '#1A1A1A', /* Slightly lighter dark for cards */
-                        'text-light': '#E0E0E0', /* Light grey for general text */
-                        'input-bg': '#2C2C2C', /* Darker input background */
-                        'input-border': '#4A4A4A', /* Input border color */
-                        'accent-blue': '#00BFFF', /* A vibrant blue accent */
+                        'remaster-orange': '#FF8A00',
+                        'remaster-dark': '#0F0F0F',
+                        'remaster-card': '#1A1A1A',
+                        'remaster-light-text': '#E0E0E0',
+                        'remaster-input': '#2C2C2C',
+                        'remaster-border': '#4A4A4A',
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                    }
+                    },
                 }
             }
         }
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        
-        /* Custom scrollbar for better aesthetics */
-        .custom-scroll::-webkit-scrollbar {
-            width: 8px; /* Slightly wider for dark theme */
-        }
-
-
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background-color: #FF8A00; /* Orange scrollbar */
-            border-radius: 4px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background-color: #2C2C2C; /* Dark track */
-        }
-
-
-        /* --- Custom Dropdown Arrow Styling --- */
-        /* This hides the default arrow and injects a custom SVG arrow into the wrapper */
-        .custom-arrow-wrapper::after {
-            /* Inline SVG for a clean, primary-orange down arrow */
-            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23FF8A00'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
-            position: absolute;
-            right: 0.75rem; /* Match Tailwind 'right-3' */
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1rem;
-            height: 1rem;
-            pointer-events: none; /* Allows clicks to pass through to the select */
-            z-index: 10;
-        }
-    </style>
 </head>
-<body class="bg-primary-dark-bg font-sans min-h-screen p-4 sm:p-6 flex justify-center custom-scroll">
+<body class="bg-remaster-dark text-remaster-light-text min-h-screen font-sans p-4">
 
 
-    <div id="app" class="w-full max-w-lg bg-card-bg rounded-xl shadow-2xl p-6 sm:p-8 space-y-6 border border-input-border">
-        
-        <!-- Header: Updated with the new uploaded logo and new colors/fonts -->
-        <header class="text-center space-y-1">
-            <div class="flex flex-col items-center justify-center">
-                <img src="uploaded:1000492598.jpg-aa4a6026-584d-4369-881f-32986c5e9cfa" 
-                     alt="RemasterShadhi Logo" 
-                     onerror="this.onerror=null; this.src='https://placehold.co/112x112/FF8A00/0F0F0F?text=RS';"
-                     class="w-28 h-28 object-contain mb-1 rounded-full shadow-lg border border-primary-orange">
-                
-                <h1 class="text-4xl font-extrabold tracking-wide leading-none">
-                    <span class="text-white block">REMASTER</span>
-                    <span class="text-primary-orange text-3xl block italic">Shadhi</span>
+    <!-- Custom Alert Message Box -->
+    <div id="messageBox" class="fixed inset-x-0 top-0 z-50 p-4 transition-all duration-300 transform -translate-y-full opacity-0">
+        <div class="max-w-md mx-auto bg-red-700 text-white p-4 rounded-lg shadow-xl" role="alert">
+            <p id="messageText" class="font-medium"></p>
+        </div>
+    </div>
+
+
+    <div class="container mx-auto max-w-lg">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <div class="flex items-center justify-center space-x-4">
+                <img src="https://placehold.co/112x112/FF8A00/0F0F0F?text=RS" alt="RemasterShadhi Logo" class="w-16 h-16 rounded-full border-2 border-remaster-orange shadow-lg">
+                <h1 class="text-4xl sm:text-5xl font-extrabold">
+                    <span class="text-white">REMASTER</span>
+                    <span class="text-remaster-orange italic">Shadhi</span>
                 </h1>
             </div>
-            <p class="text-sm text-text-light pt-1">AI Lyric Generator | Powered by Gemini-2.5-Flash</p>
+            <p class="text-sm mt-2 text-remaster-light-text/70">AI Multi-Language Lyric Generator</p>
         </header>
 
 
-        <!-- Input Area -->
-        <section class="space-y-4">
-            
-            <!-- Theme Input -->
-            <div>
-                <label for="themeInput" class="block text-sm font-medium text-text-light mb-2">Enter a theme, emotion, or story:</label>
-                <textarea id="themeInput" rows="3" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500"></textarea>
-            </div>
+        <!-- Main Form Card -->
+        <div class="bg-remaster-card p-6 rounded-xl shadow-2xl border border-remaster-border/50">
+            <form id="lyricForm" class="space-y-6">
 
 
-            <!-- Language Selector - WRAPPER ADDED -->
-            <div>
-                <label for="languageSelect" class="block text-sm font-medium text-text-light mb-2">Target Language:</label>
-                <div class="relative custom-arrow-wrapper">
-                    <select id="languageSelect" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner appearance-none bg-input-bg text-text-light pr-10">
+                <!-- Primary Theme/Story Input -->
+                <div>
+                    <label for="theme" class="block text-sm font-semibold mb-2">Theme, Story, or Emotion (Required)</label>
+                    <textarea id="theme" rows="4" required
+                        class="w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange transition-colors placeholder-remaster-light-text/50"
+                        placeholder="Enter the core idea, feeling, or narrative for your lyrics..."></textarea>
+                </div>
+
+
+                <!-- Target Language Select -->
+                <div>
+                    <label for="language" class="block text-sm font-semibold mb-2">Target Language (Required)</label>
+                    <select id="language" required
+                        class="custom-select w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange transition-colors">
                         <option value="English">English</option>
                         <option value="Hindi">Hindi</option>
-                        <option value="Tamil">Tamil (தமிழ்)</option>
-                        <option value="Malayalam">Malayalam (മലയാളം)</option>
+                        <option value="Tamil (தமிழ்)">Tamil (தமிழ்)</option>
+                        <option value="Malayalam (മലയാളം)">Malayalam (മലയാളം)</option>
                     </select>
                 </div>
-            </div>
 
 
-            <!-- Advanced Options Toggle -->
-            <div class="pt-2">
-                <button id="advancedToggle" class="w-full flex justify-between items-center p-3 bg-input-bg rounded-lg text-primary-orange font-semibold hover:bg-gray-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-primary-orange border border-input-border">
-                    <span>Advanced Options (Optional)</span>
-                    <svg id="toggleIcon" class="w-5 h-5 transform rotate-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                <!-- Advanced Options Collapsible Section -->
+                <details class="group">
+                    <summary class="flex justify-between items-center cursor-pointer p-3 bg-remaster-input rounded-lg border border-remaster-border hover:bg-remaster-border transition-colors">
+                        <span class="text-base font-bold text-remaster-orange group-open:text-white">Advanced Options</span>
+                        <svg class="w-5 h-5 text-remaster-orange group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </summary>
+                    
+                    <div class="p-4 mt-2 space-y-4 border border-remaster-border rounded-lg bg-remaster-dark/50">
+                        
+                        <!-- Genre -->
+                        <div>
+                            <label for="genre" class="block text-sm font-medium mb-1">Genre</label>
+                            <select id="genre" class="custom-select w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange">
+                                <option value="">None (AI Choice)</option>
+                                <option value="Pop">Pop</option>
+                                <option value="Hip-Hop/Rap">Hip-Hop/Rap</option>
+                                <option value="Rock/Indie">Rock/Indie</option>
+                                <option value="EDM/Dance">EDM/Dance</option>
+                                <option>Acoustic Ballad</option>
+                                <option>Bollywood/Kollywood</option>
+                            </select>
+                        </div>
+
+
+                        <!-- Mood/Tone -->
+                        <div>
+                            <label for="mood" class="block text-sm font-medium mb-1">Mood / Tone</label>
+                            <select id="mood" class="custom-select w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange">
+                                <option value="">None (AI Choice)</option>
+                                <option>Uplifting/Motivational</option>
+                                <option>Melancholy/Sorrowful</option>
+                                <option>Aggressive/Powerful</option>
+                                <option>Romantic/Sensual</option>
+                                <option>Mysterious/Ethereal</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Target Audience -->
+                        <div>
+                            <label for="audience" class="block text-sm font-medium mb-1">Target Audience</label>
+                            <select id="audience" class="custom-select w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange">
+                                <option value="">None (AI Choice)</option>
+                                <option>Youth/Gen Z</option>
+                                <option>Mature Listeners</option>
+                                <option>General/Broad Appeal</option>
+                            </select>
+                        </div>
+
+
+                        <!-- Rhyme Scheme/Style -->
+                        <div>
+                            <label for="rhyme" class="block text-sm font-medium mb-1">Rhyme Scheme / Style</label>
+                            <select id="rhyme" class="custom-select w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange">
+                                <option value="">None (AI Choice)</option>
+                                <option>AABB (Couplets)</option>
+                                <option>ABAB (Alternating)</option>
+                                <option>AABA (Ballad Style)</option>
+                                <option>Free Verse/Flow</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Artist Style -->
+                        <div>
+                            <label for="artist" class="block text-sm font-medium mb-1">Artist Style (Optional)</label>
+                            <textarea id="artist" rows="1"
+                                class="w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange placeholder-remaster-light-text/50"
+                                placeholder="e.g., The Weeknd, A.R. Rahman, Kendrick Lamar"></textarea>
+                        </div>
+
+
+                        <!-- Additional Notes -->
+                        <div>
+                            <label for="notes" class="block text-sm font-medium mb-1">Additional Notes (Optional)</label>
+                            <textarea id="notes" rows="2"
+                                class="w-full p-3 bg-remaster-input border border-remaster-border rounded-lg focus:ring-remaster-orange focus:border-remaster-orange placeholder-remaster-light-text/50"
+                                placeholder="e.g., Specific vocabulary to use, length preferences, cultural context..."></textarea>
+                        </div>
+                    </div>
+                </details>
+
+
+                <!-- Generate Button -->
+                <button type="submit" id="generateButton"
+                    class="w-full py-3 mt-6 text-lg font-bold bg-remaster-orange text-remaster-dark rounded-xl shadow-lg hover:bg-opacity-90 transition-all duration-300 transform hover:scale-[1.01] flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    Generate Lyrics
                 </button>
-            </div>
+            </form>
+        </div>
 
 
-            <!-- Advanced Options Content - WRAPPER ADDED TO ALL SELECTS INSIDE -->
-            <div id="advancedOptions" class="space-y-4 border border-input-border rounded-lg p-4 transition-all duration-300 hidden bg-card-bg">
-                
-                <!-- Genre -->
-                <div class="option-group">
-                    <label for="genreSelect" class="block text-sm font-medium text-text-light mb-2">Genre:</label>
-                    <div class="relative custom-arrow-wrapper">
-                        <select id="genreSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
-                            <option value="">None (Default)</option>
-                            <option value="Pop">Pop (Fast-paced, catchy)</option>
-                            <option value="Rock">Rock (Heavy guitar, driving rhythm)</option>
-                            <option value="Hip-Hop">Hip-Hop (Rhythmic spoken word, strong beat)</option>
-                            <option value="Folk">Folk (Acoustic, story-driven)</option>
-                            <option value="Electronic">Electronic (Synthetic sounds, danceable)</option>
-                            <option value="Regional/Filmi">Regional/Filmi (Bollywood/South Indian Cinema Style)</option>
-                        </select>
-                    </div>
-                </div>
-
-
-                <!-- Mood / Tone -->
-                <div class="option-group">
-                    <label for="moodSelect" class="block text-sm font-medium text-text-light mb-2">Mood / Tone:</label>
-                    <div class="relative custom-arrow-wrapper">
-                        <select id="moodSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
-                            <option value="">None (Default)</option>
-                            <option value="Happy/Uplifting">Happy / Uplifting</option>
-                            <option value="Sad/Melancholy">Sad / Melancholy</option>
-                            <option value="Romantic/Passionate">Romantic / Passionate</option>
-                            <option value="Nostalgic/Reflective">Nostalgic / Reflective</option>
-                            <option value="Energetic/Upbeat">Energetic / Upbeat</option>
-                            <option value="Calm/Soothing">Calm / Soothing</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Target Audience -->
-                <div class="option-group">
-                    <label for="audienceSelect" class="block text-sm font-medium text-text-light mb-2">Target Audience:</label>
-                    <div class="relative custom-arrow-wrapper">
-                        <select id="audienceSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
-                            <option value="">None (Default)</option>
-                            <option value="Teenagers (13-18)">Teenagers (Focus on modern topics, simple language)</option>
-                            <option value="Young Adults (18-35)">Young Adults (Focus on careers, complex relationships)</option>
-                            <option value="General Public/Family">General Public / Family (Broad appeal, clean language)</option>
-                            <option value="Devotional/Spiritual">Devotional / Spiritual (Focus on faith/worship)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <!-- Rhyme Scheme / Style -->
-                <div class="option-group">
-                    <label for="rhymeSelect" class="block text-sm font-medium text-text-light mb-2">Rhyme Scheme / Style:</label>
-                    <div class="relative custom-arrow-wrapper">
-                        <select id="rhymeSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
-                            <option value="">None (Default)</option>
-                            <option value="AABB (Couplet)">AABB (Couplets - simple and strong)</option>
-                            <option value="ABAB (Alternating)">ABAB (Alternating - classic feel)</option>
-                            <option value="Free Verse">Free Verse (Focus on flow and meaning, no strict rhyme)</option>
-                            <option value="Slant Rhyme">Slant Rhyme (Near/imperfect rhymes - sophisticated feel)</option>
-                        </select>
-                    </div>
-                </div>
-
-
-                <!-- Artist Style -->
-                <div class="option-group">
-                    <label for="artistStyle" class="block text-sm font-medium text-text-light mb-2">Artist Style (Optional):</label>
-                    <input type="text" id="artistStyle" placeholder="E.g., Taylor Swift, AR Rahman, Drake, Arijit Singh..." class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500">
-                </div>
-
-
-                <!-- Additional Notes -->
-                <div class="option-group">
-                    <label for="additionalNotes" class="block text-sm font-medium text-text-light mb-2">Additional Notes (Optional):</label>
-                    <textarea id="additionalNotes" rows="2" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500" placeholder="E.g., Specify length, desired chorus, use metaphors about water, maintain a 4-line stanza structure..."></textarea>
-                </div>
+        <!-- Output Section -->
+        <section id="lyricsOutput" class="mt-8 pt-4">
+            <h2 class="text-3xl font-bold mb-4 text-center text-remaster-orange">Generated Lyrics</h2>
+            
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="hidden text-center p-8">
+                <div class="animate-spin inline-block w-8 h-8 border-4 border-remaster-orange border-t-transparent rounded-full mb-4"></div>
+                <p class="text-remaster-light-text/80">Crafting musical poetry...</p>
             </div>
             
-            <!-- Generate Button -->
-            <button id="generateButton" onclick="generateLyrics()" class="w-full py-3 bg-primary-orange text-white font-bold rounded-lg shadow-lg hover:bg-orange-600 transition duration-150 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-primary-orange flex items-center justify-center">
-                <svg id="generateIcon" class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                </svg>
-                Generate Lyrics
-            </button>
-            <div id="loadingIndicator" class="text-center text-primary-orange font-semibold py-2 hidden">
-                <svg class="animate-spin h-5 w-5 mr-3 inline-block" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating masterpiece...
-            </div>
+            <!-- Lyrics Display Area -->
+            <pre id="outputContent" class="hidden bg-remaster-card p-6 rounded-xl shadow-xl whitespace-pre-wrap break-words border border-remaster-border/50 text-base leading-relaxed"></pre>
         </section>
 
 
-        <!-- Results Area -->
-        <section id="resultsSection" class="space-y-4">
-            <h2 class="text-xl font-bold text-white">Generated Lyrics:</h2>
-            <div id="lyricsOutput" class="min-h-[100px] max-h-[40vh] p-4 bg-input-bg border border-input-border rounded-lg text-text-light whitespace-pre-wrap shadow-inner custom-scroll overflow-y-auto">
-                Your generated song lyrics will appear here.
-            </div>
-            
-            <!-- Error/Message Box -->
-            <div id="messageBox" class="hidden p-3 text-sm rounded-lg" role="alert"></div>
-        </section>
-        
     </div>
 
 
     <script type="module">
-        // Global utility function for displaying messages
-        const displayMessage = (message, type = 'error') => {
-            const box = document.getElementById('messageBox');
-            box.textContent = message;
-            box.className = 'p-3 text-sm rounded-lg'; // Reset classes
-            box.classList.remove('hidden');
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=";
+        const API_KEY = ""; // Placeholder, key is injected by the environment
+        const MAX_RETRIES = 3;
+        const BACKOFF_BASE = 2000; // 2 seconds
 
 
-            if (type === 'error') {
-                box.classList.add('bg-red-800/30', 'text-red-300', 'border', 'border-red-600');
-            } else if (type === 'info') {
-                box.classList.add('bg-blue-800/30', 'text-blue-300', 'border', 'border-blue-600');
-            }
+        // UI elements
+        const form = document.getElementById('lyricForm');
+        const themeInput = document.getElementById('theme');
+        const languageSelect = document.getElementById('language');
+        const genreSelect = document.getElementById('genre');
+        const moodSelect = document.getElementById('mood');
+        const audienceSelect = document.getElementById('audience');
+        const rhymeSelect = document.getElementById('rhyme');
+        const artistInput = document.getElementById('artist');
+        const notesInput = document.getElementById('notes');
+        const generateButton = document.getElementById('generateButton');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const outputContent = document.getElementById('outputContent');
+        const lyricsOutputSection = document.getElementById('lyricsOutput');
+        
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+
+
+        /**
+         * Displays a non-native alert message.
+         * @param {string} message The text to display.
+         * @param {string} type 'success' or 'error'.
+         */
+        const showMessage = (message, type = 'error') => {
+            messageText.textContent = message;
+            messageBox.style.backgroundColor = type === 'error' ? '#B91C1C' : '#FF8A00'; // red-700 or orange
+            
+            // Show the box
+            messageBox.classList.remove('-translate-y-full', 'opacity-0');
+            messageBox.classList.add('translate-y-0', 'opacity-100');
+
+
+            // Hide the box after 5 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('translate-y-0', 'opacity-100');
+                messageBox.classList.add('-translate-y-full', 'opacity-0');
+            }, 5000);
         };
 
 
-        // Advanced Options Toggle Logic
-        document.getElementById('advancedToggle').addEventListener('click', () => {
-            const optionsDiv = document.getElementById('advancedOptions');
-            const icon = document.getElementById('toggleIcon');
-            const isHidden = optionsDiv.classList.contains('hidden');
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 
-            if (isHidden) {
-                optionsDiv.classList.remove('hidden');
-                icon.classList.add('rotate-180');
-            } else {
-                optionsDiv.classList.add('hidden');
-                icon.classList.remove('rotate-180');
-            }
-        });
+        /**
+         * Generates the comprehensive prompt based on user inputs.
+         * @returns {string} The full prompt for the LLM.
+         */
+        const buildPrompt = () => {
+            const theme = themeInput.value.trim();
+            const language = languageSelect.value;
+            const genre = genreSelect.value;
+            const mood = moodSelect.value;
+            const audience = audienceSelect.value;
+            const rhyme = rhymeSelect.value;
+            const artist = artistInput.value.trim();
+            const notes = notesInput.value.trim();
 
 
-        window.generateLyrics = async () => {
-            const themeInput = document.getElementById('themeInput').value.trim();
-            const languageSelect = document.getElementById('languageSelect').value;
-            const genreSelect = document.getElementById('genreSelect').value;
-            const moodSelect = document.getElementById('moodSelect').value;
-            const audienceSelect = document.getElementById('audienceSelect').value;
-            const rhymeSelect = document.getElementById('rhymeSelect').value;
-            const artistStyle = document.getElementById('artistStyle').value.trim();
-            const additionalNotes = document.getElementById('additionalNotes').value.trim();
+            let prompt = `Generate a set of song lyrics in ${language} based on the following theme/story: "${theme}".`;
+
+
+            // Adding Advanced Options
+            if (genre) prompt += ` The genre should be ${genre}.`;
+            if (mood) prompt += ` The mood/tone must be ${mood}.`;
+            if (audience) prompt += ` The target audience is ${audience}.`;
+            if (rhyme) prompt += ` The preferred overall rhyme scheme/style is ${rhyme}.`;
+            if (artist) prompt += ` Emulate the lyrical style of the artist: ${artist}.`;
+            if (notes) prompt += ` Additional instructions: ${notes}.`;
+
+
+            // MANDATORY STRUCTURE INSTRUCTIONS
+            prompt += `\n\n**CRITICAL MANDATE:** The lyrics must contain the following labeled sections in order: INTRO, VERSE 1, CHORUS, VERSE 2, BRIDGE, and OUTRO. For enhanced musicality, use different, suitable rhyme schemes or lyrical styles for each of the required sections, while respecting the overall preferred rhyme scheme if specified. The final output MUST be a single block of text with no introductory or concluding commentary.`;
+
+
+            return prompt;
+        };
+
+
+        /**
+         * Handles the entire lyric generation process with exponential backoff.
+         */
+        const generateLyrics = async (event) => {
+            event.preventDefault();
             
-            const lyricsOutput = document.getElementById('lyricsOutput');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const messageBox = document.getElementById('messageBox');
-            const resultsSection = document.getElementById('resultsSection');
-            
-            messageBox.classList.add('hidden');
-            
-            if (!themeInput) {
-                displayMessage('Please enter a theme, emotion, or story to start!', 'error');
+            if (!themeInput.value.trim()) {
+                showMessage("Please enter a Theme, Story, or Emotion to begin.", 'error');
                 return;
             }
 
 
-            lyricsOutput.textContent = 'Generating...';
+            // UI State: Disable button, show loading
+            generateButton.disabled = true;
+            generateButton.textContent = "Generating...";
             loadingIndicator.classList.remove('hidden');
-            document.getElementById('generateButton').disabled = true;
-
-
-            // --- Constructing the Comprehensive Prompt ---
-            let prompt = `Generate original song lyrics in ${languageSelect}. The central theme, emotion, or story is: "${themeInput}".`;
-
-
-            const styleInstructions = [];
-            if (genreSelect) styleInstructions.push(`Genre: ${genreSelect}`);
-            if (moodSelect) styleInstructions.push(`Mood/Tone: ${moodSelect}`);
-            if (audienceSelect) styleInstructions.push(`Target Audience: ${audienceSelect}`);
+            outputContent.classList.add('hidden');
+            outputContent.textContent = '';
             
-            // Note: Rhyme scheme selected in the UI is treated as a preference/style guide for the overall song,
-            // but the new requirement is for the AI to vary it across sections.
-            if (rhymeSelect) styleInstructions.push(`Overall preferred Rhyme Scheme/Style: ${rhymeSelect} (Use this as a basis, but vary the scheme per section for better musicality).`);
+            const fullPrompt = buildPrompt();
             
-            if (artistStyle) styleInstructions.push(`In the style of: ${artistStyle}`);
-            if (additionalNotes) styleInstructions.push(`Additional Instructions: ${additionalNotes}`);
-
-
-            if (styleInstructions.length > 0) {
-                prompt += "\n\nMusical and Lyrical Style Requirements:\n- " + styleInstructions.join('\n- ');
-            }
-
-
-            // --- Updated Formatting Requirements ---
-            prompt += "\n\nFormatting Requirements:\n- The output MUST contain the following sections: INTRO, VERSE 1, CHORUS, VERSE 2, BRIDGE, and OUTRO.\n- Use different, suitable rhyme schemes or lyrical styles for each of these sections (e.g., AABB for Chorus, ABAB for Verses, Free Verse for Intro/Outro).\n- Label each section clearly (e.g., INTRO, CHORUS, etc.).\n- The lyrics must be provided in a single block of text. Do not include any introductory or concluding commentary, only the lyrics.";
-
-
-
-
-            const apiKey = ""; // API Key will be automatically handled by the environment
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-
-
             const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
+                contents: [{ parts: [{ text: fullPrompt }] }],
                 systemInstruction: {
-                    parts: [{ text: "You are a world-class songwriter and lyricist capable of writing in multiple languages and adapting to any genre or style requested. You must follow all style and language instructions precisely." }]
-                },
+                    parts: [{ text: "You are a creative, multi-lingual lyricist and poet. Your task is to generate complete song lyrics based on the user's detailed request, adhering strictly to the required section structure and language. Do not output any prose, titles, or commentary, only the raw, structured lyrics." }]
+                }
             };
-
-
-            const maxRetries = 3;
-            let currentRetry = 0;
-            let success = false;
             
-            while (currentRetry < maxRetries && !success) {
+            let resultText = '';
+            let lastError = null;
+
+
+            for (let i = 0; i < MAX_RETRIES; i++) {
                 try {
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch(`${API_URL}${API_KEY}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -342,14 +389,11 @@
 
 
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        const errorBody = await response.json();
+                        throw new Error(`API Error: ${response.status} - ${errorBody.error?.message || response.statusText}`);
                     }
 
 
                     const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
-
-
-                    if (text) {
-                        lyricsOutput.textContent = text;
-                        success =
+                    
+                    const text = r
