@@ -41,6 +41,22 @@
         .custom-scroll::-webkit-scrollbar-track {
             background-color: #2C2C2C; /* Dark track */
         }
+
+
+        /* --- Custom Dropdown Arrow Styling --- */
+        /* This hides the default arrow and injects a custom SVG arrow into the wrapper */
+        .custom-arrow-wrapper::after {
+            /* Inline SVG for a clean, primary-orange down arrow */
+            content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23FF8A00'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+            position: absolute;
+            right: 0.75rem; /* Match Tailwind 'right-3' */
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            pointer-events: none; /* Allows clicks to pass through to the select */
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-primary-dark-bg font-sans min-h-screen p-4 sm:p-6 flex justify-center custom-scroll">
@@ -48,7 +64,8 @@
 
     <div id="app" class="w-full max-w-lg bg-card-bg rounded-xl shadow-2xl p-6 sm:p-8 space-y-6 border border-input-border">
         
-        <!-- Header: Updated with the new uploaded logo and new colors/fonts --><header class="text-center space-y-1">
+        <!-- Header: Updated with the new uploaded logo and new colors/fonts -->
+        <header class="text-center space-y-1">
             <div class="flex flex-col items-center justify-center">
                 <img src="uploaded:1000492598.jpg-aa4a6026-584d-4369-881f-32986c5e9cfa" 
                      alt="RemasterShadhi Logo" 
@@ -64,26 +81,32 @@
         </header>
 
 
-        <!-- Input Area --><section class="space-y-4">
+        <!-- Input Area -->
+        <section class="space-y-4">
             
-            <!-- Theme Input --><div>
+            <!-- Theme Input -->
+            <div>
                 <label for="themeInput" class="block text-sm font-medium text-text-light mb-2">Enter a theme, emotion, or story:</label>
                 <textarea id="themeInput" rows="3" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500"></textarea>
             </div>
 
 
-            <!-- Language Selector --><div>
+            <!-- Language Selector - WRAPPER ADDED -->
+            <div>
                 <label for="languageSelect" class="block text-sm font-medium text-text-light mb-2">Target Language:</label>
-                <select id="languageSelect" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner appearance-none bg-input-bg text-text-light">
-                    <option value="English">English</option>
-                    <option value="Hindi">Hindi</option>
-                    <option value="Tamil">Tamil (தமிழ்)</option>
-                    <option value="Malayalam">Malayalam (മലയാളം)</option>
-                </select>
+                <div class="relative custom-arrow-wrapper">
+                    <select id="languageSelect" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner appearance-none bg-input-bg text-text-light pr-10">
+                        <option value="English">English</option>
+                        <option value="Hindi">Hindi</option>
+                        <option value="Tamil">Tamil (தமிழ்)</option>
+                        <option value="Malayalam">Malayalam (മലയാളം)</option>
+                    </select>
+                </div>
             </div>
 
 
-            <!-- Advanced Options Toggle --><div class="pt-2">
+            <!-- Advanced Options Toggle -->
+            <div class="pt-2">
                 <button id="advancedToggle" class="w-full flex justify-between items-center p-3 bg-input-bg rounded-lg text-primary-orange font-semibold hover:bg-gray-700 transition duration-150 focus:outline-none focus:ring-2 focus:ring-primary-orange border border-input-border">
                     <span>Advanced Options (Optional)</span>
                     <svg id="toggleIcon" class="w-5 h-5 transform rotate-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -93,71 +116,87 @@
             </div>
 
 
-            <!-- Advanced Options Content --><div id="advancedOptions" class="space-y-4 border border-input-border rounded-lg p-4 transition-all duration-300 hidden bg-card-bg">
+            <!-- Advanced Options Content - WRAPPER ADDED TO ALL SELECTS INSIDE -->
+            <div id="advancedOptions" class="space-y-4 border border-input-border rounded-lg p-4 transition-all duration-300 hidden bg-card-bg">
                 
-                <!-- Genre --><div class="option-group">
+                <!-- Genre -->
+                <div class="option-group">
                     <label for="genreSelect" class="block text-sm font-medium text-text-light mb-2">Genre:</label>
-                    <select id="genreSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
-                        <option value="">None (Default)</option>
-                        <option value="Pop">Pop (Fast-paced, catchy)</option>
-                        <option value="Rock">Rock (Heavy guitar, driving rhythm)</option>
-                        <option value="Hip-Hop">Hip-Hop (Rhythmic spoken word, strong beat)</option>
-                        <option value="Folk">Folk (Acoustic, story-driven)</option>
-                        <option value="Electronic">Electronic (Synthetic sounds, danceable)</option>
-                        <option value="Regional/Filmi">Regional/Filmi (Bollywood/South Indian Cinema Style)</option>
-                    </select>
+                    <div class="relative custom-arrow-wrapper">
+                        <select id="genreSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
+                            <option value="">None (Default)</option>
+                            <option value="Pop">Pop (Fast-paced, catchy)</option>
+                            <option value="Rock">Rock (Heavy guitar, driving rhythm)</option>
+                            <option value="Hip-Hop">Hip-Hop (Rhythmic spoken word, strong beat)</option>
+                            <option value="Folk">Folk (Acoustic, story-driven)</option>
+                            <option value="Electronic">Electronic (Synthetic sounds, danceable)</option>
+                            <option value="Regional/Filmi">Regional/Filmi (Bollywood/South Indian Cinema Style)</option>
+                        </select>
+                    </div>
                 </div>
 
 
-                <!-- Mood / Tone --><div class="option-group">
+                <!-- Mood / Tone -->
+                <div class="option-group">
                     <label for="moodSelect" class="block text-sm font-medium text-text-light mb-2">Mood / Tone:</label>
-                    <select id="moodSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
-                        <option value="">None (Default)</option>
-                        <option value="Happy/Uplifting">Happy / Uplifting</option>
-                        <option value="Sad/Melancholy">Sad / Melancholy</option>
-                        <option value="Romantic/Passionate">Romantic / Passionate</option>
-                        <option value="Nostalgic/Reflective">Nostalgic / Reflective</option>
-                        <option value="Energetic/Upbeat">Energetic / Upbeat</option>
-                        <option value="Calm/Soothing">Calm / Soothing</option>
-                    </select>
+                    <div class="relative custom-arrow-wrapper">
+                        <select id="moodSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
+                            <option value="">None (Default)</option>
+                            <option value="Happy/Uplifting">Happy / Uplifting</option>
+                            <option value="Sad/Melancholy">Sad / Melancholy</option>
+                            <option value="Romantic/Passionate">Romantic / Passionate</option>
+                            <option value="Nostalgic/Reflective">Nostalgic / Reflective</option>
+                            <option value="Energetic/Upbeat">Energetic / Upbeat</option>
+                            <option value="Calm/Soothing">Calm / Soothing</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <!-- Target Audience --><div class="option-group">
+                <!-- Target Audience -->
+                <div class="option-group">
                     <label for="audienceSelect" class="block text-sm font-medium text-text-light mb-2">Target Audience:</label>
-                    <select id="audienceSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
-                        <option value="">None (Default)</option>
-                        <option value="Teenagers (13-18)">Teenagers (Focus on modern topics, simple language)</option>
-                        <option value="Young Adults (18-35)">Young Adults (Focus on careers, complex relationships)</option>
-                        <option value="General Public/Family">General Public / Family (Broad appeal, clean language)</option>
-                        <option value="Devotional/Spiritual">Devotional / Spiritual (Focus on faith/worship)</option>
-                    </select>
+                    <div class="relative custom-arrow-wrapper">
+                        <select id="audienceSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
+                            <option value="">None (Default)</option>
+                            <option value="Teenagers (13-18)">Teenagers (Focus on modern topics, simple language)</option>
+                            <option value="Young Adults (18-35)">Young Adults (Focus on careers, complex relationships)</option>
+                            <option value="General Public/Family">General Public / Family (Broad appeal, clean language)</option>
+                            <option value="Devotional/Spiritual">Devotional / Spiritual (Focus on faith/worship)</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <!-- Rhyme Scheme / Style --><div class="option-group">
+                <!-- Rhyme Scheme / Style -->
+                <div class="option-group">
                     <label for="rhymeSelect" class="block text-sm font-medium text-text-light mb-2">Rhyme Scheme / Style:</label>
-                    <select id="rhymeSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light">
-                        <option value="">None (Default)</option>
-                        <option value="AABB (Couplet)">AABB (Couplets - simple and strong)</option>
-                        <option value="ABAB (Alternating)">ABAB (Alternating - classic feel)</option>
-                        <option value="Free Verse">Free Verse (Focus on flow and meaning, no strict rhyme)</option>
-                        <option value="Slant Rhyme">Slant Rhyme (Near/imperfect rhymes - sophisticated feel)</option>
-                    </select>
+                    <div class="relative custom-arrow-wrapper">
+                        <select id="rhymeSelect" class="w-full p-3 border border-input-border rounded-lg appearance-none bg-input-bg text-text-light pr-10">
+                            <option value="">None (Default)</option>
+                            <option value="AABB (Couplet)">AABB (Couplets - simple and strong)</option>
+                            <option value="ABAB (Alternating)">ABAB (Alternating - classic feel)</option>
+                            <option value="Free Verse">Free Verse (Focus on flow and meaning, no strict rhyme)</option>
+                            <option value="Slant Rhyme">Slant Rhyme (Near/imperfect rhymes - sophisticated feel)</option>
+                        </select>
+                    </div>
                 </div>
 
 
-                <!-- Artist Style --><div class="option-group">
+                <!-- Artist Style -->
+                <div class="option-group">
                     <label for="artistStyle" class="block text-sm font-medium text-text-light mb-2">Artist Style (Optional):</label>
                     <input type="text" id="artistStyle" placeholder="E.g., Taylor Swift, AR Rahman, Drake, Arijit Singh..." class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500">
                 </div>
 
 
-                <!-- Additional Notes --><div class="option-group">
+                <!-- Additional Notes -->
+                <div class="option-group">
                     <label for="additionalNotes" class="block text-sm font-medium text-text-light mb-2">Additional Notes (Optional):</label>
                     <textarea id="additionalNotes" rows="2" class="w-full p-3 border border-input-border rounded-lg focus:ring-primary-orange focus:border-primary-orange transition duration-150 shadow-inner bg-input-bg text-text-light placeholder-gray-500" placeholder="E.g., Specify length, desired chorus, use metaphors about water, maintain a 4-line stanza structure..."></textarea>
                 </div>
             </div>
             
-            <!-- Generate Button --><button id="generateButton" onclick="generateLyrics()" class="w-full py-3 bg-primary-orange text-white font-bold rounded-lg shadow-lg hover:bg-orange-600 transition duration-150 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-primary-orange flex items-center justify-center">
+            <!-- Generate Button -->
+            <button id="generateButton" onclick="generateLyrics()" class="w-full py-3 bg-primary-orange text-white font-bold rounded-lg shadow-lg hover:bg-orange-600 transition duration-150 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-primary-orange flex items-center justify-center">
                 <svg id="generateIcon" class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                 </svg>
@@ -173,13 +212,15 @@
         </section>
 
 
-        <!-- Results Area --><section class="space-y-4">
+        <!-- Results Area -->
+        <section id="resultsSection" class="space-y-4">
             <h2 class="text-xl font-bold text-white">Generated Lyrics:</h2>
-            <div id="lyricsOutput" class="min-h-[100px] p-4 bg-input-bg border border-input-border rounded-lg text-text-light whitespace-pre-wrap shadow-inner custom-scroll overflow-y-auto">
+            <div id="lyricsOutput" class="min-h-[100px] max-h-[40vh] p-4 bg-input-bg border border-input-border rounded-lg text-text-light whitespace-pre-wrap shadow-inner custom-scroll overflow-y-auto">
                 Your generated song lyrics will appear here.
             </div>
             
-            <!-- Error/Message Box --><div id="messageBox" class="hidden p-3 text-sm rounded-lg" role="alert"></div>
+            <!-- Error/Message Box -->
+            <div id="messageBox" class="hidden p-3 text-sm rounded-lg" role="alert"></div>
         </section>
         
     </div>
@@ -232,6 +273,7 @@
             const lyricsOutput = document.getElementById('lyricsOutput');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const messageBox = document.getElementById('messageBox');
+            const resultsSection = document.getElementById('resultsSection');
             
             messageBox.classList.add('hidden');
             
@@ -310,33 +352,4 @@
 
                     if (text) {
                         lyricsOutput.textContent = text;
-                        success = true;
-                    } else {
-                        throw new Error("API response was missing generated content.");
-                    }
-                } catch (error) {
-                    console.error(`Attempt ${currentRetry + 1} failed:`, error);
-                    currentRetry++;
-                    if (currentRetry < maxRetries) {
-                        // Exponential backoff
-                        const delay = Math.pow(2, currentRetry) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    } else {
-                        displayMessage(`Failed to generate lyrics after ${maxRetries} attempts. Please check your prompt or try again later.`, 'error');
-                        lyricsOutput.textContent = 'Error during generation.';
-                    }
-                }
-            }
-            
-            loadingIndicator.classList.add('hidden');
-            document.getElementById('generateButton').disabled = false;
-        };
-
-
-        // Set initial placeholder text for the output area
-        document.addEventListener('DOMContentLoaded', () => {
-             document.getElementById('lyricsOutput').textContent = "Your generated song lyrics will appear here. Start by entering a theme and hitting 'Generate'.";
-        });
-    </script>
-</body>
-</html>
+                        success =
